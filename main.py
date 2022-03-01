@@ -13,14 +13,15 @@ def hello_world():
 
 @app.route('/api/upload', methods=['POST'])
 def upload():
+    token = request.values.get('token')
     blob = request.values.get('blob')
     webptopng(blob)
-    data = imageai()
+    data = imageai(token)
     return jsonify(data)
 
 def webptopng(blob): 
     with open('imageToSave.webp', 'wb') as fh: 
-        # Get only revelant data, deleting "data:image/png;base64," 
+        # deleting "data:image/png;base64," 
         data = blob.split(',')[1] 
         fh.write(base64.b64decode(data))
         fh.close()
@@ -29,15 +30,15 @@ def webptopng(blob):
     img.load()
     img.save("tmp.png")
 
-def imageai():
+def imageai(token):
     request_url = "https://aip.baidubce.com/rest/2.0/image-classify/v2/advanced_general"
     # 二进制方式打开图片文件
     f = open('tmp.png', 'rb')
     img = base64.b64encode(f.read())
 
     params = {"image":img}
-    access_token = '24.b9bf4569d9e9e667a6af2c3e5499d486.2592000.1648196112.282335-25652959'
-    request_url = request_url + "?access_token=" + access_token
+#     access_token = '24.b9bf4569d9e9e667a6af2c3e5499d486.2592000.1648196112.282335-25652959'
+    request_url = request_url + "?access_token=" + token
     headers = {'content-type': 'application/x-www-form-urlencoded'}
     response = requests.post(request_url, data=params, headers=headers)
     return response.json()
